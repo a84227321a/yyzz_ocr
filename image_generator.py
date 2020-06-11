@@ -56,7 +56,7 @@ def min_ctc_len(text):
 
 
 if __name__ == '__main__':
-    bg_image_path_x = r'F:\ocr\bg_image'
+    bg_image_path_x = r'E:\code\yyzz_ocr\data\bg\bg.jpg'
     imGenerator = ImageGenerator(r'F:\ocr\font\Chinese')
     def load_bg_images(root):
         bg_image_names = list()
