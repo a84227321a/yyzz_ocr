@@ -3,11 +3,11 @@ import re
 import numpy as np
 import random
 import cv2
-from pre_util import *
+from util.pre_util import *
 import keras.backend as K
 import itertools
 import keras.callbacks
-from image_generator import ImageGenerator
+from image_generator_py import ImageGenerator
 
 
 def gen_text(char_list, count=(10, 15)):
@@ -158,7 +158,7 @@ class TextImageGenerator(keras.callbacks.Callback):
                             continue
                         break
                     else:
-                        text = gen_text(self.chars_list, (10, 11))
+                        text = gen_text(self.chars_list, (8, 15))
                         gen_result = gen_train_img(text, self.image_generator,target_h=self.img_h,bg_image_path=self.bg_image_path)
                         # print('gen done')
                         img, real_img_w, _points = gen_result
@@ -169,9 +169,10 @@ class TextImageGenerator(keras.callbacks.Callback):
                     pass
             imgs.append(img)
             # print(img)
-            t_img = img
+            # t_img = img
             # cv2.imshow('aaa',t_img)
             # cv2.waitKey(0)
+            # print(t_img*255)
             img_w_list.append(real_img_w)
             label = list()
             text = text.replace(' ', '')

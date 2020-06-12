@@ -78,4 +78,4 @@ def load_test_sample(img_root, label_root, char_idx_dict):
             #     continue
             sample_list.append([img_path, text])
 
-    return sample_list[:100]
+    return sample_list

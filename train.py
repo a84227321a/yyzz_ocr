@@ -14,7 +14,7 @@ from utils import get_dict, create_result_subdir,load_test_sample
 from data_generator import TextImageGenerator,ValGenerator
 from config import cfg
 from GCN import GraphConvolution
-from image_generator import ImageGenerator
+from image_generator_py import ImageGenerator
 from keras.regularizers import l2
 
 def ctc_lambda_func(args):
@@ -50,13 +50,13 @@ def model_STN(cfg,idx_char_dict):
         # input_shape = (cfg.height, cfg.width, cfg.nb_channels)
         input_shape = (cfg.height, None, cfg.nb_channels)
     inputs_data = Input(name='the_input', shape=input_shape, dtype='float32')
-    if cfg.stn:
-        if K.image_data_format() == 'channels_first':
-            x = STN(inputs_data, sampling_size=input_shape[1:])
-        else:
-            x = STN(inputs_data, sampling_size=input_shape[:2])
-    else:
-        x = inputs_data
+    # if cfg.stn:
+    #     if K.image_data_format() == 'channels_first':
+    #         x = STN(inputs_data, sampling_size=input_shape[1:])
+    #     else:
+    #         x = STN(inputs_data, sampling_size=input_shape[:2])
+    # else:
+    x = inputs_data
     y_pred_1 = resnet.ResNet50(x, len(idx_char_dict)+1)
 
     # H = GraphConvolution(16, support, activation='relu', kernel_regularizer=l2(5e-4))([H] + G)
@@ -110,9 +110,9 @@ def create_output_directory():
     # 自动在output_dir下生成文件夹
     output_subdir = create_result_subdir(cfg.output_dir)
     print('Output directory: ' + output_subdir)
-    files = [f for f in os.listdir('.') if os.path.isfile(f)]
-    for f in files:
-        shutil.copy(f, output_subdir)
+    # files = [f for f in os.listdir('.') if os.path.isfile(f)]
+    # for f in files:
+    #     shutil.copy(f, output_subdir)
     return output_subdir
 
 def load_weights_if_resume_training(training_model):
@@ -121,11 +121,11 @@ def load_weights_if_resume_training(training_model):
     return training_model
 
 if __name__ == '__main__':
-    # os.environ['CUDA_VISIBLE_DEVICES'] = cfg.gpus
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['CUDA_VISIBLE_DEVICES'] = cfg.gpus
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     idx_char_dict, char_idx_dict = get_dict(cfg.label_pkl_path)
     print('dict init')
-    test_sample_list = load_test_sample(img_root=os.path.join(cfg.test_dir,'image'), label_root=os.path.join(cfg.test_dir,'text'),
+    test_sample_list = load_test_sample(img_root=os.path.join(cfg.test_dir,'img'), label_root=os.path.join(cfg.test_dir,'txt'),
                                         char_idx_dict=char_idx_dict)
     print('test data init')
     training_model, prediction_model = model_STN(cfg,idx_char_dict)
@@ -140,7 +140,10 @@ if __name__ == '__main__':
     # training_model.compile(loss={'ctc': lambda y_true, ctc_pred: ctc_pred}, optimizer=opt, metrics=['accuracy'])
     # use the model
     training_model = load_weights_if_resume_training(training_model)
-    print('exist model init')
+    if cfg.resume_training ==True:
+        print('exist model init')
+    else:
+        print("no exist model")
     training_model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=opt, metrics=['accuracy'])
 
     training_model.fit_generator(generator=train_generator.next_train(),
