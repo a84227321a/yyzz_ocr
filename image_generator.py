@@ -12,7 +12,7 @@ class ImageGenerator:
         self.__font_helper = FontHelper(font_dir)
 
     def gen(self, bg_image, text, options):
-        font_color = np.random.randint(0, 255, 3)
+        font_color = np.random.randint(0, 80, 3)
         font_color = (font_color[0], font_color[1], font_color[2])
         font_paths = self.__font_helper.get_fonts(text)
         font_path = font_paths[np.random.randint(len(font_paths))]
@@ -56,8 +56,8 @@ def min_ctc_len(text):
 
 
 if __name__ == '__main__':
-    bg_image_path_x = r'E:\code\yyzz_ocr\data\bg\bg.jpg'
-    imGenerator = ImageGenerator(r'F:\ocr\font\Chinese')
+    bg_image_path_x = r'E:\code\yyzz_ocr\data\bg'
+    imGenerator = ImageGenerator(r'E:\code\yyzz_ocr\data\font')
     def load_bg_images(root):
         bg_image_names = list()
         names = os.listdir(root)
@@ -102,10 +102,20 @@ if __name__ == '__main__':
 
     import random
     import os
-
-    cout = 0
+    import pickle
+    with open(r"E:\code\yyzz_ocr\data\char\number.pkl",'rb') as f:
+        id_str_dic, str_id_dic = pickle.load(f)
+    char_list = list(str_id_dic.keys())
+    write = r'E:\code\yyzz_ocr\data\gen_test'
+    write_im_dir = os.path.join(write,'img')
+    write_txt_dir = os.path.join(write,'txt')
+    if not os.path.exists(write_im_dir):
+        os.mkdir(write_im_dir)
+    if not os.path.exists(write_txt_dir):
+        os.mkdir(write_txt_dir)
+    cout = 1
     while 1:
-        text = '央视著名节目主持人'
+        text = gen_text1(char_list)
         # temp_text = ''.join(text)
         gen_result = gen_train_img(text, target_h=25)
         try:
@@ -114,7 +124,15 @@ if __name__ == '__main__':
             print('error')
             continue
         print(img.shape)
+
+        with open(os.path.join(write_txt_dir,str(cout)+'.txt'),'w',encoding='utf-8') as f2:
+            f2.write(text)
         img = img * 255.
         img = img.astype(np.uint8)
-        cv2.imshow('111', img)
+        cv2.imwrite(os.path.join(write_im_dir, str(cout) + '.jpg'), img)
+        #cv2.imshow('111', img)
         cv2.waitKey(0)
+
+        cout+=1
+        if cout == 201:
+            break
